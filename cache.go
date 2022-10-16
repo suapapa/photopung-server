@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	imgCache = make(map[string][]byte)
+	imgCache = make(map[string]*PTPImage)
 )
 
 func cacheImageFromFile(file *multipart.FileHeader) (string, error) {
@@ -28,13 +28,13 @@ func cacheImageFromFile(file *multipart.FileHeader) (string, error) {
 	}
 
 	// resize image into 800x800 box
-	img = resize.Resize(800, 800, img, resize.Lanczos3)
-	// make short uuid name for image
-	name := randSeq(8)
+	if img.Bounds().Dx() > 800 || img.Bounds().Dy() > 800 {
+		img = resize.Resize(800, 800, img, resize.Lanczos3)
+	}
+	ptpi := NewPTPImage(file.Filename, imgToBytes(img))
+	imgCache[ptpi.Name] = ptpi
 
-	// TODO: image should be detstoryed after some time
-	imgCache[name] = imgToBytes(img)
-	return name, nil
+	return ptpi.Name, nil
 }
 
 func imgFromReader(r io.Reader) (image.Image, error) {

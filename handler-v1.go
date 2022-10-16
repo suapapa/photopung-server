@@ -42,7 +42,7 @@ func imgUploadHandler(c *gin.Context) {
 
 func imgGetHandler(c *gin.Context) {
 	name := c.Query("name")
-	imgData, ok := imgCache[name]
+	ptpi, ok := imgCache[name]
 	if !ok {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": "image not found",
@@ -50,5 +50,5 @@ func imgGetHandler(c *gin.Context) {
 		return
 	}
 
-	c.Data(http.StatusOK, "image/jpeg", imgData)
+	c.Data(http.StatusOK, "image/jpeg", ptpi.Data)
 }
