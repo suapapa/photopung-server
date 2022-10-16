@@ -1,4 +1,4 @@
-module github.com/suapapa/ptp-server
+module github.com/suapapa/photopung-server
 
 go 1.19
 

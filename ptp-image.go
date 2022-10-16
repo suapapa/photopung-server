@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type PTPImage struct {
 	OrigName string
@@ -16,4 +19,8 @@ func NewPTPImage(origName string, data []byte) *PTPImage {
 		Data:     data,
 		BornAt:   time.Now(),
 	}
+}
+
+func (i *PTPImage) String() string {
+	return fmt.Sprintf("%s[%s-%s]", i.Name, i.OrigName, i.BornAt)
 }

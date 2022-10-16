@@ -1,13 +1,18 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"context"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
 	r := gin.Default()
 	v1 := r.Group("/v1")
 	{
 		v1.GET("/ping", func(c *gin.Context) {
-			c.JSON(200, gin.H{
+			c.JSON(http.StatusOK, gin.H{
 				"message": "pong",
 			})
 		})
@@ -15,5 +20,9 @@ func main() {
 		v1.GET("/img", imgGetHandler)
 	}
 
-	r.Run() // listen and serve on
+	ctx, cancelF := context.WithCancel(context.Background())
+	defer cancelF()
+	go cleanGarbageImageCache(ctx)
+
+	r.Run(":8080") // listen and serve on
 }

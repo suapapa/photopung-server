@@ -2,10 +2,13 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"image"
 	"image/jpeg"
 	"io"
+	"log"
 	"mime/multipart"
+	"time"
 
 	"github.com/nfnt/resize"
 	"github.com/pkg/errors"
@@ -35,6 +38,24 @@ func cacheImageFromFile(file *multipart.FileHeader) (string, error) {
 	imgCache[ptpi.Name] = ptpi
 
 	return ptpi.Name, nil
+}
+
+func cleanGarbageImageCache(ctx context.Context) {
+	tkr := time.NewTicker(1 * time.Minute)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-tkr.C:
+			for k, v := range imgCache {
+				// TODO: lifetime should be configurable
+				if time.Since(v.BornAt) > 10*time.Minute {
+					log.Printf("delete image from cache: %s", k)
+					delete(imgCache, k)
+				}
+			}
+		}
+	}
 }
 
 func imgFromReader(r io.Reader) (image.Image, error) {
